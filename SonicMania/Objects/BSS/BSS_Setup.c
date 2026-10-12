@@ -247,7 +247,7 @@ void BSS_Setup_SetupPalette(void)
     for (int32 i = 0; i < 3; ++i) RSDK.SetPaletteEntry(0, 0xA0 + i, RSDK.GetPaletteEntry(1, i + BSS_Palette->startColorID + 2));
 
     // Emerald Colours (Unused in mania)
-    for (int32 i = 0; i < 4; ++i) RSDK.SetPaletteEntry(0, 0xC0 + i, RSDK.GetPaletteEntry(1, i + BSS_Palette->startColorID + 8));
+    for (int32 i = 0; i < 4; ++i) RSDK.SetPaletteEntry(0, 0xD0 + i, RSDK.GetPaletteEntry(1, i + BSS_Palette->startColorID + 8));
 
     // Alt Globe Palettes
     for (int32 i = 0; i < 0x100; i += 0x10) {
@@ -849,26 +849,28 @@ void BSS_Setup_State_StartGlobeTeleport(void)
         RSDK.SetSpriteAnimation(player2->aniFrames, 0, &player2->animator, true, 0);
 
         int32 count                = BSS_Setup->pinkSphereCount;
-        int32 dir                  = RSDK.Rand(0, count - 1);
         bool32 foundValidPlayerPos = false;
 
-        for (; (count && dir >= 0) && !foundValidPlayerPos; --count) {
-            for (int32 y = 0; y < BSS_PLAYFIELD_H; ++y) {
-                for (int32 x = 0; x < BSS_PLAYFIELD_W; ++x) {
-                    uint16 tile = BSS_Setup->playField[y + (BSS_PLAYFIELD_H * x)];
-                    if ((tile & 0x7F) == BSS_SPHERE_PINK && (x != self->playerPos.x || y != self->playerPos.y) && --dir < 0) {
-                        self->playerPos.x = x;
-                        self->playerPos.y = y;
+        if (count > 1) {
+            int32 dir = RSDK.Rand(0, count - 1);
+            for (; (count && dir >= 0) && !foundValidPlayerPos; --count) {
+                for (int32 y = 0; y < BSS_PLAYFIELD_H; ++y) {
+                    for (int32 x = 0; x < BSS_PLAYFIELD_W; ++x) {
+                        uint16 tile = BSS_Setup->playField[y + (BSS_PLAYFIELD_H * x)];
+                        if ((tile & 0x7F) == BSS_SPHERE_PINK && (x != self->playerPos.x || y != self->playerPos.y) && --dir < 0) {
+                            self->playerPos.x = x;
+                            self->playerPos.y = y;
 
-                        x                   = 0x20;
-                        y                   = 0x20;
-                        foundValidPlayerPos = true;
+                            x                   = 0x20;
+                            y                   = 0x20;
+                            foundValidPlayerPos = true;
+                        }
                     }
                 }
             }
         }
 
-        dir                       = RSDK.Rand(0, 4);
+        int32 dir                 = RSDK.Rand(0, 4);
         bool32 foundValidSpawnDir = false;
         for (int32 i = 0; i < 4; ++i) {
             int32 x = self->playerPos.x;
